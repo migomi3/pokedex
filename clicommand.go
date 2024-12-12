@@ -50,14 +50,25 @@ func commandHelp(cfg *Config) error {
 }
 
 func commandExit(cfg *Config) error {
+	fmt.Println("Closing the Pokedex... Goodbye!")
 	defer os.Exit(0)
 	return nil
 }
 
 func commandMap(cfg *Config) error {
-	locations, err := pokeapi.GetAreas(*cfg.nextLocationURL)
-	if err != nil {
-		return err
+	var locations pokeapi.LocationAreaRes
+	var err error
+
+	if body, ok := cfg.cache.Get(*cfg.nextLocationURL); ok {
+		locations, err = pokeapi.UnmarshalAreas(body)
+		if err != nil {
+			return err
+		}
+	} else {
+		locations, err = pokeapi.GetAreas(*cfg.nextLocationURL, &cfg.cache)
+		if err != nil {
+			return err
+		}
 	}
 
 	cfg.nextLocationURL = locations.Next
@@ -75,9 +86,19 @@ func commandMapB(cfg *Config) error {
 		return errors.New("already on the first page")
 	}
 
-	locations, err := pokeapi.GetAreas(*cfg.prevLocationURL)
-	if err != nil {
-		return err
+	var locations pokeapi.LocationAreaRes
+	var err error
+
+	if body, ok := cfg.cache.Get(*cfg.prevLocationURL); ok {
+		locations, err = pokeapi.UnmarshalAreas(body)
+		if err != nil {
+			return err
+		}
+	} else {
+		locations, err = pokeapi.GetAreas(*cfg.prevLocationURL, &cfg.cache)
+		if err != nil {
+			return err
+		}
 	}
 
 	cfg.nextLocationURL = locations.Next

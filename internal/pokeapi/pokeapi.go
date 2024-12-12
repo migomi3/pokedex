@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+
+	"github.com/migomi3/pokedex/internal/pokecache"
 )
 
 type LocationAreaRes struct {
@@ -16,7 +18,7 @@ type LocationAreaRes struct {
 	} `json:"results"`
 }
 
-func GetAreas(url string) (LocationAreaRes, error) {
+func GetAreas(url string, cache *pokecache.Cache) (LocationAreaRes, error) {
 	res, err := http.Get(url)
 	if err != nil {
 		return LocationAreaRes{}, err
@@ -28,8 +30,14 @@ func GetAreas(url string) (LocationAreaRes, error) {
 	}
 	defer res.Body.Close()
 
+	cache.Add(url, body)
+
+	return UnmarshalAreas(body)
+}
+
+func UnmarshalAreas(body []byte) (LocationAreaRes, error) {
 	locationArea := LocationAreaRes{}
-	err = json.Unmarshal(body, &locationArea)
+	err := json.Unmarshal(body, &locationArea)
 	if err != nil {
 		return LocationAreaRes{}, err
 	}

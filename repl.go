@@ -5,16 +5,22 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
+
+	"github.com/migomi3/pokedex/internal/pokecache"
 )
 
 func startRepl() error {
 	scanner := bufio.NewScanner(os.Stdin)
-	startURL := "https://pokeapi.co/api/v2/location-area/"
+	startURL := "https://pokeapi.co/api/v2/location-area/?offset=0&limit=20"
 
 	cfg := &Config{
+		cache:           pokecache.NewCache(7000 * time.Millisecond),
 		nextLocationURL: &startURL,
 		prevLocationURL: nil,
 	}
+
+	fmt.Println()
 
 	for {
 		fmt.Print("Pokedex > ")
