@@ -15,7 +15,7 @@ func startRepl() error {
 	startURL := "https://pokeapi.co/api/v2/location-area/?offset=0&limit=20"
 
 	cfg := &Config{
-		cache:           pokecache.NewCache(7000 * time.Millisecond),
+		cache:           pokecache.NewCache(5 * time.Minute),
 		nextLocationURL: &startURL,
 		prevLocationURL: nil,
 	}
