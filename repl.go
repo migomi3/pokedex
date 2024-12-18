@@ -12,11 +12,12 @@ import (
 
 func startRepl() error {
 	scanner := bufio.NewScanner(os.Stdin)
-	startURL := "https://pokeapi.co/api/v2/location-area/?offset=0&limit=20"
+	baseURL := "https://pokeapi.co/api/v2"
 
 	cfg := &Config{
 		cache:           pokecache.NewCache(5 * time.Minute),
-		nextLocationURL: &startURL,
+		baseURL:         &baseURL,
+		nextLocationURL: nil,
 		prevLocationURL: nil,
 	}
 
@@ -28,10 +29,14 @@ func startRepl() error {
 
 		input := scanner.Text()
 		cleanedCommand := cleanInput(input)
+		var arg string
+		if len(cleanedCommand) > 1 {
+			arg = cleanedCommand[1]
+		}
 
-		command, exists := getCommands()[cleanedCommand]
+		command, exists := getCommands()[cleanedCommand[0]]
 		if exists {
-			err := command.callback(cfg)
+			err := command.callback(cfg, arg)
 
 			if err != nil {
 				fmt.Println(err)
@@ -43,8 +48,8 @@ func startRepl() error {
 	}
 }
 
-func cleanInput(s string) string {
+func cleanInput(s string) []string {
 	lowered := strings.ToLower(s)
 	cleanedText := strings.Fields(lowered)
-	return cleanedText[0]
+	return cleanedText
 }

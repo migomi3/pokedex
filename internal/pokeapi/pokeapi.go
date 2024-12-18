@@ -18,8 +18,8 @@ type LocationAreaRes struct {
 	} `json:"results"`
 }
 
-func GetAreas(url string, cache *pokecache.Cache) (LocationAreaRes, error) {
-	res, err := http.Get(url)
+func GetAreas(url *string, cache *pokecache.Cache) (LocationAreaRes, error) {
+	res, err := http.Get(*url)
 	if err != nil {
 		return LocationAreaRes{}, err
 	}
@@ -30,7 +30,7 @@ func GetAreas(url string, cache *pokecache.Cache) (LocationAreaRes, error) {
 	}
 	defer res.Body.Close()
 
-	cache.Add(url, body)
+	cache.Add(*url, body)
 
 	return UnmarshalAreas(body)
 }
