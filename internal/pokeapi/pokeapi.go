@@ -8,17 +8,7 @@ import (
 	"github.com/migomi3/pokedex/internal/pokecache"
 )
 
-type LocationAreaRes struct {
-	Count    int     `json:"count"`
-	Next     *string `json:"next"`
-	Previous *string `json:"previous"`
-	Results  []struct {
-		Name string `json:"name"`
-		URL  string `json:"url"`
-	} `json:"results"`
-}
-
-func GetAreas(url *string, cache *pokecache.Cache) (LocationAreaRes, error) {
+func GetLocationAreasRes(url *string, cache *pokecache.Cache) (LocationAreaRes, error) {
 	res, err := http.Get(*url)
 	if err != nil {
 		return LocationAreaRes{}, err
@@ -32,14 +22,41 @@ func GetAreas(url *string, cache *pokecache.Cache) (LocationAreaRes, error) {
 
 	cache.Add(*url, body)
 
-	return UnmarshalAreas(body)
+	return UnmarshalLocationAreasRes(body)
 }
 
-func UnmarshalAreas(body []byte) (LocationAreaRes, error) {
+func UnmarshalLocationAreasRes(body []byte) (LocationAreaRes, error) {
 	locationArea := LocationAreaRes{}
 	err := json.Unmarshal(body, &locationArea)
 	if err != nil {
 		return LocationAreaRes{}, err
+	}
+
+	return locationArea, nil
+}
+
+func GetLocationArea(url *string, cache *pokecache.Cache) (LocationArea, error) {
+	res, err := http.Get(*url)
+	if err != nil {
+		return LocationArea{}, err
+	}
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return LocationArea{}, err
+	}
+	defer res.Body.Close()
+
+	cache.Add(*url, body)
+
+	return UnmarshalLocationArea(body)
+}
+
+func UnmarshalLocationArea(body []byte) (LocationArea, error) {
+	locationArea := LocationArea{}
+	err := json.Unmarshal(body, &locationArea)
+	if err != nil {
+		return LocationArea{}, err
 	}
 
 	return locationArea, nil

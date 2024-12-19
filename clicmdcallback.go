@@ -34,12 +34,12 @@ func commandMap(cfg *Config, _ string) error {
 	}
 
 	if body, ok := cfg.cache.Get(url); ok {
-		locations, err = pokeapi.UnmarshalAreas(body)
+		locations, err = pokeapi.UnmarshalLocationAreasRes(body)
 		if err != nil {
 			return err
 		}
 	} else {
-		locations, err = pokeapi.GetAreas(&url, &cfg.cache)
+		locations, err = pokeapi.GetLocationAreasRes(&url, &cfg.cache)
 		if err != nil {
 			return err
 		}
@@ -64,12 +64,12 @@ func commandMapB(cfg *Config, _ string) error {
 	var err error
 
 	if body, ok := cfg.cache.Get(*cfg.prevLocationURL); ok {
-		locations, err = pokeapi.UnmarshalAreas(body)
+		locations, err = pokeapi.UnmarshalLocationAreasRes(body)
 		if err != nil {
 			return err
 		}
 	} else {
-		locations, err = pokeapi.GetAreas(cfg.prevLocationURL, &cfg.cache)
+		locations, err = pokeapi.GetLocationAreasRes(cfg.prevLocationURL, &cfg.cache)
 		if err != nil {
 			return err
 		}
@@ -91,6 +91,29 @@ func commandExplore(cfg *Config, area string) error {
 	}
 
 	fmt.Printf("Exploring %s...\n", area)
+
+	url := *cfg.baseURL + "/location-area/" + area
+
+	var location pokeapi.LocationArea
+	var err error
+
+	if body, ok := cfg.cache.Get(url); ok {
+		location, err = pokeapi.UnmarshalLocationArea(body)
+		if err != nil {
+			return err
+		}
+	} else {
+		location, err = pokeapi.GetLocationArea(&url, &cfg.cache)
+		if err != nil {
+			return err
+		}
+	}
+
+	fmt.Println("Found Pokemon:")
+
+	for _, pokemonEncounter := range location.PokemonEncounters {
+		fmt.Printf("\t- %s\n", pokemonEncounter.Pokemon.Name)
+	}
 
 	return nil
 }
