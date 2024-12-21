@@ -61,3 +61,30 @@ func UnmarshalLocationArea(body []byte) (LocationArea, error) {
 
 	return locationArea, nil
 }
+
+func GetPokemon(url *string, cache *pokecache.Cache) (Pokemon, error) {
+	res, err := http.Get(*url)
+	if err != nil {
+		return Pokemon{}, err
+	}
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return Pokemon{}, err
+	}
+	defer res.Body.Close()
+
+	cache.Add(*url, body)
+
+	return UnmarshalPokemon(body)
+}
+
+func UnmarshalPokemon(body []byte) (Pokemon, error) {
+	pokemon := Pokemon{}
+	err := json.Unmarshal(body, &pokemon)
+	if err != nil {
+		return Pokemon{}, err
+	}
+
+	return pokemon, nil
+}

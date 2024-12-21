@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"os"
 
 	"github.com/migomi3/pokedex/internal/pokeapi"
@@ -90,8 +91,6 @@ func commandExplore(cfg *Config, area string) error {
 		return errors.New("explore command needs location-area name or id")
 	}
 
-	fmt.Printf("Exploring %s...\n", area)
-
 	url := *cfg.baseURL + "/location-area/" + area
 
 	var location pokeapi.LocationArea
@@ -109,10 +108,46 @@ func commandExplore(cfg *Config, area string) error {
 		}
 	}
 
+	fmt.Printf("Exploring %s...\n", location.Name)
 	fmt.Println("Found Pokemon:")
 
 	for _, pokemonEncounter := range location.PokemonEncounters {
 		fmt.Printf("\t- %s\n", pokemonEncounter.Pokemon.Name)
+	}
+
+	return nil
+}
+
+func commandCatch(cfg *Config, pokeId string) error {
+	if pokeId == "" {
+		return errors.New("Need a pokemon Name/id as an argument to catch one")
+	}
+
+	url := *cfg.baseURL + "/pokemon/" + pokeId
+
+	var pokemon pokeapi.Pokemon
+	var err error
+
+	if body, ok := cfg.cache.Get(url); ok {
+		pokemon, err = pokeapi.UnmarshalPokemon(body)
+		if err != nil {
+			return err
+		}
+	} else {
+		pokemon, err = pokeapi.GetPokemon(&url, &cfg.cache)
+		if err != nil {
+			return err
+		}
+	}
+
+	fmt.Printf("Throwing a Pokeball at %s...\n", pokemon.Name)
+
+	odds := rand.Intn(750)
+	if pokemon.BaseExperience < odds {
+		fmt.Printf("%s successfully caught!\n", pokemon.Name)
+		cfg.pokedex[pokemon.Name] = pokemon
+	} else {
+		fmt.Printf("%s escaped!\n", pokemon.Name)
 	}
 
 	return nil
