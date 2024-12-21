@@ -13,7 +13,7 @@ func commandHelp(cfg *Config, _ string) error {
 	fmt.Println("Welcome to the Pokedex!\nUsage:")
 
 	for _, val := range getCommands() {
-		fmt.Printf("\t%s: %s\n", val.name, val.description)
+		fmt.Printf("	%s: %s\n", val.name, val.description)
 	}
 
 	return nil
@@ -112,7 +112,7 @@ func commandExplore(cfg *Config, area string) error {
 	fmt.Println("Found Pokemon:")
 
 	for _, pokemonEncounter := range location.PokemonEncounters {
-		fmt.Printf("\t- %s\n", pokemonEncounter.Pokemon.Name)
+		fmt.Printf(" - %s\n", pokemonEncounter.Pokemon.Name)
 	}
 
 	return nil
@@ -165,13 +165,13 @@ func commandInspect(cfg *Config, pokeName string) error {
 
 	fmt.Printf("Name: %s\nHeight: %d\nWeight: %d\nStats:\n", pokemon.Name, pokemon.Height, pokemon.Weight)
 	for _, stat := range pokemon.Stats {
-		fmt.Printf("\t-%s: %d\n", stat.Stat.Name, stat.BaseStat)
+		fmt.Printf(" - %s: %d\n", stat.Stat.Name, stat.BaseStat)
 	}
 
 	fmt.Println("Types:")
 
 	for _, pokeType := range pokemon.Types {
-		fmt.Printf("\t-%s\n", pokeType.Type.Name)
+		fmt.Printf(" - %s\n", pokeType.Type.Name)
 	}
 
 	return nil
