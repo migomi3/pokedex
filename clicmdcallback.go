@@ -155,7 +155,7 @@ func commandCatch(cfg *Config, pokeId string) error {
 
 func commandInspect(cfg *Config, pokeName string) error {
 	if pokeName == "" {
-		return errors.New("Need the name of a pokemon you've caught")
+		return errors.New("need the name of a pokemon you've caught")
 	}
 
 	pokemon, exists := cfg.pokedex[pokeName]
@@ -174,5 +174,16 @@ func commandInspect(cfg *Config, pokeName string) error {
 		fmt.Printf(" - %s\n", pokeType.Type.Name)
 	}
 
+	return nil
+}
+
+func commandPokedex(cfg *Config, _ string) error {
+	if len(cfg.pokedex) == 0 {
+		return errors.New("no pokemon caught yet")
+	}
+
+	for _, pokemon := range cfg.pokedex {
+		fmt.Printf(" - %s\n", pokemon.Name)
+	}
 	return nil
 }
